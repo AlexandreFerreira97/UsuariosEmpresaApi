@@ -100,17 +100,23 @@ namespace API_USUARIO
                 throw ex;
             }
         }
-        public static string BuscaID(string cpf)
+        public static Usuario BuscaID(string cpf)
         {
             var conn = ConexaoBanco();
             try
             {
-                using (var cmd = new SQLiteCommand($"SELECT * FROM Pessoas where CPF = @CPF", conn))
+                using (var cmd = new SQLiteCommand($"SELECT * FROM Pessoas where CPF = '{cpf}'", conn))
                 {
                     conn.Open();
-                    cmd.Parameters.Contains(new SQLiteParameter("@CPF", cpf));
-                    cmd.ExecuteNonQuery();
-                    return cpf;
+                    var reader = cmd.ExecuteReader();
+
+                    if (reader.HasRows)
+                    {
+                        reader.Read();
+                        return new Usuario { Nome = reader["Nome"].ToString(), Email = reader["Email"].ToString(), Telefone = reader["Telefone"].ToString(), CPF = reader["CPF"].ToString() };
+                    }
+
+                    return null;
                 }
             }
             catch (Exception ex)
